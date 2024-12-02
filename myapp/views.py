@@ -5,6 +5,8 @@ from django.shortcuts import render,redirect
 from django.urls import reverse
 from .bot import send_message
 from django.views.generic import View
+from django.core.paginator import Paginator
+from .models import Post
 
 def index_view(request):
     about_info = About.objects.all()
@@ -16,8 +18,14 @@ def about_view(request):
     return render(request,'about.html', {'about_info': about_info})
 
 def blog_view(request):
-    posts = BlogPost.objects.all()
-    return render(request,'blog.html', {'posts': posts})
+    posts_list = Post.objects.all()  # Barcha postlarni olish
+    paginator = Paginator(posts_list, 2)  # Har bir sahifada 2 post
+
+    page_number = request.GET.get('page')  # URL dan sahifa raqamini olish
+    page_obj = paginator.get_page(page_number)  # Sahifa obyektini olish
+    
+    return render(request, "blog.html", {'page_obj': page_obj})
+
 
 class ContactView(View):
     template_name = "contact.html"
